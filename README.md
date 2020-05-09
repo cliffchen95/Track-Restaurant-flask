@@ -8,7 +8,8 @@ name | defination
 username | string
 email | string
 password | string
-address/location of interest | string, this will dictate the area to search restaurant
+city | string
+city_id | city id from zomato api
 id | key
 1. /register POST, register account
 2. /update PATCH, update acount
