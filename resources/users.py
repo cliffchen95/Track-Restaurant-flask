@@ -62,20 +62,14 @@ def user_register():
       ), 201
 
 @users.route('/logout', methods=['GET'])
+@login_required
 def user_logout():
-  if current_user.is_authenticated:
-    logout_user()
-    return jsonify(
-      data={},
-      message="Successfully logged out",
-      status=200
-    ), 200
-  else:
-    return jsonify(
-      data={},
-      message="No user is logged in",
-      status=412
-    ), 412
+  logout_user()
+  return jsonify(
+    data={},
+    message="Successfully logged out",
+    status=200
+  ), 200
 
 @users.route('/login', methods=['POST'])
 def user_login():
