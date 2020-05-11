@@ -3,14 +3,25 @@ import models
 User = models.User
 
 from flask import Blueprint, request, jsonify
-from flask_bcrypt import generate_password_hash
-from flask_login import login_user, current_user, logout_user
+from flask_bcrypt import generate_password_hash, check_password_hash
+from flask_login import login_user, current_user, logout_user, login_required
 from playhouse.shortcuts import model_to_dict
 users = Blueprint('users', 'users')
 
-@users.route('/', methods=['GET'])
-def user():
-  return "user connected"
+@users.route('/update', methods=['PATCH'])
+@login_required
+def user_update():
+  user = User.get_by_id(current_user.id)
+  payload = request.get_json()
+  query = User.update({
+    User.city: payload['city']
+  }).where(User.id == current_user.id)
+  query.execute()
+  return jsonify(
+    data={},
+    message=f"updated user with id {current_user.id}",
+    status=200
+  ), 200
 
 @users.route('/register', methods=['POST'])
 def user_register():
@@ -50,8 +61,6 @@ def user_register():
         status=201
       ), 201
 
-
-
 @users.route('/logout', methods=['GET'])
 def user_logout():
   if current_user.is_authenticated:
@@ -67,3 +76,43 @@ def user_logout():
       message="No user is logged in",
       status=412
     ), 412
+
+@users.route('/login', methods=['POST'])
+def user_login():
+  if not current_user.is_authenticated:
+    payload = request.get_json()
+    payload['username'] = payload['username'].lower()
+
+    try:
+      user = User.get(User.username == payload['username'])
+      user_dict = model_to_dict(user)
+      if check_password_hash(user_dict['password'], payload['password']):
+        login_user(user)
+        user_dict.pop('password')
+        return jsonify(
+          data=user_dict,
+          message=f"Successfully logged in {user_dict['username']}",
+          status=200
+        ), 200
+      else:
+        return jsonify(
+          data={},
+          message='Username does not exist or incorrect password',
+          status=401
+        ), 401
+
+    except models.DoesNotExist:
+      return jsonify(
+        data={},
+        message='Username does not exist or incorrect password',
+        status=401
+      ), 401
+  else:
+    user = model_to_dict(current_user)
+    user.pop('password')
+    return jsonify(
+      data=user,
+      message=f"You are currently logged in as {user['username']}",
+      status=412
+    ), 412
+
