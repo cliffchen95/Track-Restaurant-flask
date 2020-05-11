@@ -12,7 +12,7 @@ restaurants = Blueprint('restaurants', 'restaurants')
 @login_required
 def restaurant():
   if request.method == 'POST':
-    if request.headers['like']:
+    if request.headers['like'] == 'true':
       payload = request.get_json()
       new_liked = Like_Restaurant.create(
         restaurant_id=payload['id'],
@@ -26,6 +26,20 @@ def restaurant():
       return jsonify(
         data=new,
         message=f"Successfully liked restaurant with id {payload['id']}",
+        status=201
+      ), 201
+    else:
+      payload = request.get_json()
+      new_disliked = Dislike_Restaurant.create(
+        restaurant_id=payload['id'],
+        user_id=current_user.id
+      )
+      new = model_to_dict(new_disliked)
+      new['user_id'].pop('password')
+
+      return jsonify(
+        data=new,
+        message=f"Successfully disliked restaurant with id {payload['id']}",
         status=201
       ), 201
 
