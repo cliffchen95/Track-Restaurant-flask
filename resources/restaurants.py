@@ -8,7 +8,7 @@ from flask_login import current_user, login_required
 from playhouse.shortcuts import model_to_dict
 restaurants = Blueprint('restaurants', 'restaurants')
 
-@restaurants.route('/', methods=['POST'])
+@restaurants.route('/', methods=['POST', 'GET'])
 @login_required
 def restaurant():
   if request.method == 'POST':
@@ -43,4 +43,18 @@ def restaurant():
         status=201
       ), 201
 
+  if request.method == 'GET':
+    liked_ones = Like_Restaurant.select().where( Like_Restaurant.user_id == current_user.id )
+    likes = [model_to_dict(like) for like in liked_ones]
+    for like in likes:
+      (like['user_id']).pop('password')
+    disliked_ones = Dislike_Restaurant.select().where( Dislike_Restaurant.user_id == current_user.id )
+    dislikes = [model_to_dict(dislike) for dislike in disliked_ones]
+    for dislike in dislikes:
+      (dislike['user_id']).pop('password')
+    return jsonify(
+      data={ "like_restaurants": likes, "dislike_restaurants": dislikes },
+      message=f"Found {len(likes)} likes and {len(dislikes)} dislikes",
+      status=200
+    ), 200
 
