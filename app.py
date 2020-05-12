@@ -1,5 +1,6 @@
 from flask import Flask, jsonify
 from flask_login import LoginManager
+from flask_cors import CORS
 import models
 
 from resources.users import users
@@ -31,6 +32,8 @@ def unauthorized():
     message="You must be logged in to access that resource",
     status=401
   ), 401
+
+CORS(users, origins=['http://localhost:3000'], supports_credentials=True)
 
 app.register_blueprint(users, url_prefix='/api/v1/users')
 app.register_blueprint(restaurants, url_prefix='/api/v1/restaurants')

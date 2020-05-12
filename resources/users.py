@@ -29,16 +29,10 @@ def user_register():
     payload['username'] = payload['username'].lower()
 
     try:
-      User.get(User.username == payload['username'])
+      User.select().where((User.username == payload['username']) | (User.email == payload['email'])).get()
       return jsonify(
         data={},
-        message=f"A user with username {payload['username']} already exists",
-        status=401
-      ), 401
-      User.get(User.email == payload['email'])
-      return jsonify(
-      data={},
-        message=f"A user with email {payload['email']} already exists",
+        message=f"The username or email already exists",
         status=401
       ), 401
     except models.DoesNotExist:
