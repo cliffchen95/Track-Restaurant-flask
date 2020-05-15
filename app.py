@@ -33,8 +33,8 @@ def unauthorized():
     status=401
   ), 401
 
-CORS(users, origins=['http://localhost:3000'], supports_credentials=True)
-CORS(restaurants, origins=['http://localhost:3000'], supports_credentials=True)
+CORS(users, origins=['http://localhost:3000', 'https://restaurant-finder-react.herokuapp.com'], supports_credentials=True)
+CORS(restaurants, origins=['http://localhost:3000', 'https://restaurant-finder-react.herokuapp.com/'], supports_credentials=True)
 
 app.register_blueprint(users, url_prefix='/api/v1/users')
 app.register_blueprint(restaurants, url_prefix='/api/v1/restaurants')
@@ -59,7 +59,7 @@ def hello_world():
 if 'ON_HEROKU' in os.environ: 
   print('\non heroku!')
   models.initialize()
-  
+
 if __name__ == "__main__":
   models.initialize()
   app.run(debug=DEBUG, port=PORT)
