@@ -21,6 +21,7 @@ def restaurant():
         picture=payload['picture'],
         user_id=current_user.id,
         url=payload['url'],
+        city=payload['city'],
         cuisine=payload['cuisine']
       )
       new = model_to_dict(new_liked)
@@ -60,4 +61,22 @@ def restaurant():
       message=f"Found {len(likes)} likes and {len(dislikes)} dislikes",
       status=200
     ), 200
+
+@restaurants.route('/<id>', methods=['DELETE'])
+@login_required
+def remove_restaurant(id):
+  try:
+    restaurant = Like_Restaurant.select().where(Like_Restaurant.user_id == current_user.id, Like_Restaurant.id == id).get()
+    restaurant.delete_instance()
+    return jsonify(
+      data={},
+      message=f"Successfully removed restaurant with id {id}",
+      status=200
+    ), 200
+  except models.DoesNotExist:
+    return jsonify(
+      data={},
+      message=f"Failed to delete restaurant with id {id}",
+      status=400
+    ), 400
 

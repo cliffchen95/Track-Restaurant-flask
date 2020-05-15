@@ -20,6 +20,7 @@ class User(UserMixin, Model):
 class Like_Restaurant(Model):
   restaurant_id= CharField()
   address = CharField()
+  city = CharField()
   picture = CharField()
   user_id = ForeignKeyField(User, backref="liked_restaurants")
   url = CharField()
@@ -43,10 +44,18 @@ class Friend(Model):
   class Meta:
     database = DATABASE
 
+class Request(Model):
+  user_from = ForeignKeyField(User, backref='from')
+  user_to = ForeignKeyField(User, backref='to')
+  info = CharField()
+
+  class Meta:
+    database = DATABASE
+
 def initialize():
   DATABASE.connect()
 
-  DATABASE.create_tables([User, Like_Restaurant, Dislike_Restaurant], safe=True)
+  DATABASE.create_tables([User, Like_Restaurant, Dislike_Restaurant, Request, Friend], safe=True)
   print('connected to database')
 
   DATABASE.close()

@@ -1,6 +1,8 @@
 import models
 
 User = models.User
+Request = models.Request
+Friend = models.Friend
 
 from flask import Blueprint, request, jsonify
 from flask_bcrypt import generate_password_hash, check_password_hash
@@ -103,3 +105,35 @@ def user_login():
       message=f"You are currently logged in as {user['username']}",
       status=412
     ), 412
+
+@users.route('/search', methods=['GET'])
+@login_required
+def user_search():
+  query = request.args.get('query')
+  if query == "":
+    return jsonify(
+      data={},
+      message="There are no user",
+      status=204
+    ), 204
+  try:
+    users = User.select().where(User.username.contains(query))
+    users = [model_to_dict(user) for user in users]
+    print(current_user)
+    for user in users:
+      user.pop('password')
+      if user['id'] == current_user.id:
+        users.remove(user)
+
+    return jsonify(
+      data=users,
+      message=f"Successfully found {len(users)} users",
+      status=200
+    ), 200
+  except models.DoesNotExist:
+    return jsonify(
+      data={},
+      message="There are no user",
+      status=204
+    ), 204
+
