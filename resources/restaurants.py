@@ -16,9 +16,12 @@ def restaurant():
       payload = request.get_json()
       new_liked = Like_Restaurant.create(
         restaurant_id=payload['id'],
+        name=payload['name'],
         address=payload['address'],
         picture=payload['picture'],
-        user_id=current_user.id
+        user_id=current_user.id,
+        url=payload['url'],
+        cuisine=payload['cuisine']
       )
       new = model_to_dict(new_liked)
       new['user_id'].pop('password')

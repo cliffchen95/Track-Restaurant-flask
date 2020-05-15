@@ -1,7 +1,12 @@
 from peewee import *
 from flask_login import UserMixin
+import os
+from playhouse.db_url import connect
 
-DATABASE = SqliteDatabase('data.sqlite')
+if 'ON_HEROKU' in os.environ: 
+  DATABASE = connect(os.environ.get('DATABASE_URL')) 
+else:
+  DATABASE = SqliteDatabase('data.sqlite')
 
 class User(UserMixin, Model):
   username = CharField(unique=True)
@@ -17,7 +22,10 @@ class Like_Restaurant(Model):
   address = CharField()
   picture = CharField()
   user_id = ForeignKeyField(User, backref="liked_restaurants")
-
+  url = CharField()
+  name = CharField()
+  cuisine = CharField()
+  
   class Meta:
     database = DATABASE
 

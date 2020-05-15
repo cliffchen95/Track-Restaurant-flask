@@ -103,4 +103,3 @@ def user_login():
       message=f"You are currently logged in as {user['username']}",
       status=412
     ), 412
-
